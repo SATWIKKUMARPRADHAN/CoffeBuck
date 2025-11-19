@@ -1,0 +1,345 @@
+:root {
+  /* Palette from your image */
+  --brand: #27734F;
+  /* deep green */
+  --brand-dark: #1f5f41;
+  /* hover/active green */
+  --primary: #A68256;
+  /* warm brown */
+  --primary-dark: #8f6238;
+  /* deeper brown */
+  --accent: #D9B991;
+  /* sand */
+  --muted: #D9CBBF;
+  /* cream */
+  --highlight: #A6705D;
+  /* reddish-brown */
+  --text: #3b2b20;
+  /* dark coffee text */
+  --bg: #f6f1ea;
+}
+
+/* Base */
+body {
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Nav */
+.nav-link {
+  color: inherit;
+  transition: color .18s ease, transform .12s ease;
+}
+
+.nav-link:hover {
+  color: var(--brand-dark);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* Cart badge */
+.cart-badge {
+  background: var(--highlight);
+  color: #fff;
+  padding: .12rem .45rem;
+  border-radius: 999px;
+  font-size: .85rem;
+}
+
+/* Mobile menu animation */
+#mobile-menu.show {
+  display: block;
+}
+
+/* Hero overlay — subtle brown glaze */
+.hero-overlay {
+  background-color: rgba(166, 130, 86, 0.58);
+}
+
+/* Buttons (green CTAs for Starbucks vibe) */
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  padding: .75rem 1.15rem;
+  border-radius: .7rem;
+  display: inline-block;
+  transition: background .12s ease, transform .1s ease, box-shadow .2s ease;
+  box-shadow: 0 10px 18px rgba(39, 115, 79, .12);
+}
+
+.btn-primary:hover {
+  background: var(--brand-dark);
+  transform: translateY(-2px);
+}
+
+/* Card hovers */
+.rounded-xl img {
+  transition: transform .35s ease, filter .28s ease;
+}
+
+.rounded-xl:hover img {
+  transform: scale(1.03);
+  filter: contrast(1.02) saturate(1.03);
+}
+
+/* Footer — unified */
+footer {
+  background: var(--brand);
+}
+
+/* Utility shadows */
+.shadow-lg {
+  box-shadow: 0 10px 20px rgba(59, 43, 32, .06);
+}
+
+/* Contact form feedback */
+.form-success {
+  background: var(--accent);
+  padding: 12px;
+  border-radius: 10px;
+  color: var(--text);
+}
+
+/* Cart / table (payment) */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.cart-item-row {
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .hero-overlay {
+    padding: 2rem 1rem;
+  }
+
+  .cart-table thead {
+    display: none;
+  }
+
+  .cart-table tr {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .cart-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+}
+
+/* Accessibility focus */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid rgba(39, 115, 79, .22);
+  outline-offset: 3px;
+}
+
+/* Container width normalization */
+.max-w-7xl {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Chatbot widget styles */
+.chat-widget-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: var(--brand);
+  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(39, 115, 79, 0.18);
+  z-index: 9998;
+  cursor: pointer;
+}
+
+.chat-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 88px;
+  width: 360px;
+  max-width: calc(100% - 40px);
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  transform-origin: bottom right;
+}
+
+.chat-panel.hidden {
+  display: none;
+}
+
+.chat-header {
+  background: var(--brand);
+  color: white;
+  padding: 12px 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-messages {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  background: linear-gradient(180deg, #fff, #fbfaf8);
+}
+
+.chat-input-area {
+  padding: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-input-area textarea {
+  resize: none;
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+}
+
+.chat-send-btn {
+  background: var(--brand);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-message {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.chat-message .bubble {
+  display: inline-block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-message.user .bubble {
+  background: var(--brand);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.bot .bubble {
+  background: #f3f1ef;
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-loading {
+  font-size: 12px;
+  color: #777;
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .chat-panel {
+    width: 92%;
+    right: 4%;
+    left: 4%;
+    bottom: 84px;
+  }
+
+  .chat-widget-btn {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+/* Social media floating bubbles (left side) */
+.social-bubbles {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 9998;
+}
+
+.social-bubbles .connector {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: linear-gradient(180deg, rgba(39, 115, 79, 0.12), rgba(39, 115, 79, 0.06));
+  border-radius: 4px;
+  top: -120px;
+  bottom: -12px;
+  z-index: -1;
+}
+
+.social-bubbles a {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 8px 18px rgba(59, 43, 32, 0.08);
+  transition: transform .12s ease, box-shadow .12s ease;
+  text-decoration: none;
+}
+
+.social-bubbles a:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(59, 43, 32, 0.12);
+}
+
+.social-bubbles svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 640px) {
+  .social-bubbles {
+    left: 12px;
+    bottom: 12px;
+  }
+}
