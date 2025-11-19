@@ -2,11 +2,9 @@
 (function(){
   'use strict';
 
-  // IMPORTANT: Paste your OpenRouter API key below.
-  // WARNING: Placing the key here exposes it to anyone who can view your site files.
-  // For production, host a server-side proxy to keep your key secret. For quick testing,
-  // put your key as the string value below between the quotes.
-  var OPENROUTER_API_KEY = '<PASTE_YOUR_API_KEY_HERE>';
+  // Customized Chatbot: Digital Waiter + Receptionist + Assistant
+  // All logic is local — no external API required
+  // The chatbot is initialized by chatbot.js and exposed via window.CoffeBuckChatbot
 
   // --- Mobile nav toggle ---
   document.addEventListener('DOMContentLoaded', function(){
@@ -94,104 +92,25 @@
 
       function appendMessage(role, text){
         var wrap = document.createElement('div'); wrap.className = 'chat-message ' + (role==='user'?'user':'bot');
-        var b = document.createElement('div'); b.className = 'bubble'; b.innerText = text;
+        var b = document.createElement('div'); b.className = 'bubble';
+        // Simple markdown support: **bold** and [link](url)
+        text = text
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" style="color:#27734F;text-decoration:underline;">$1</a>');
+        b.innerHTML = text;
         wrap.appendChild(b);
         messagesEl.appendChild(wrap);
         messagesEl.scrollTop = messagesEl.scrollHeight;
       }
 
-      function setLoading(isLoading){
-        var existing = messagesEl.querySelector('.chat-loading');
-        if(isLoading && !existing){
-          var l = document.createElement('div'); l.className = 'chat-loading'; l.innerText = 'Assistant is typing…'; messagesEl.appendChild(l); messagesEl.scrollTop = messagesEl.scrollHeight;
-        } else if(!isLoading && existing){ existing.remove(); }
-      }
-
-      var convo = [];
-
-      // System prompt: restrict assistant to CoffeBuck-specific questions only.
-      var SYSTEM_PROMPT = 'You are the CoffeBuck virtual assistant. Answer ONLY questions directly related to CoffeBuck — its menu, pricing, locations, hours, ingredients, sourcing, sustainability practices, company background, ordering flow, and site features. If the user asks something outside this scope, respond politely and briefly: "I\'m sorry — I can only answer questions about CoffeBuck and its background. I can\'t help with that." Do not provide guidance on unrelated topics.';
-      function extractContentFromOpenrouterResponse(data){
-        if(!data) return '';
-        if(data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) return data.choices[0].message.content;
-        if(data.output && data.output[0] && data.output[0].content){
-          var c = data.output[0].content[0];
-          if(c && typeof c === 'object' && c.text) return c.text;
-          return JSON.stringify(data.output[0].content);
-        }
-        if(typeof data === 'string') return data;
-        return JSON.stringify(data);
-      }
-
-      async function sendToApi(userText){
-        setLoading(true);
-        convo.push({ role: 'user', content: userText });
-
-        var payloadMessages = [{ role: 'system', content: SYSTEM_PROMPT }].concat(convo.map(function(m){ return { role: m.role, content: m.content }; }));
-        var payload = {
-          model: 'deepseek/deepseek-r1-0528-qwen3-8b:free',
-          messages: payloadMessages
-        };
-
-        // First, try the local proxy at /api/chat (recommended). The proxy keeps your API key private.
-        try{
-          var proxyResp = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if(proxyResp.ok){
-            var data = await proxyResp.json();
-            var content = extractContentFromOpenrouterResponse(data);
-            convo.push({ role: 'assistant', content: content });
-            setLoading(false);
-            appendMessage('bot', content);
-            return;
-          } else if(proxyResp.status !== 404){
-            var txt = await proxyResp.text();
-            appendMessage('bot', 'Proxy error: ' + proxyResp.status + ' — ' + txt);
-            setLoading(false);
-            return;
-          }
-          // if 404, fall through to try direct call
-        }catch(e){
-          // proxy not available or network error — we'll try fallback to direct call below
-        }
-
-        // Fallback: direct client-side call (only for quick testing). Prefer running the Node.js proxy.
-        if(!OPENROUTER_API_KEY || OPENROUTER_API_KEY.indexOf('<PASTE')===0){
-          appendMessage('bot','No API key provided and proxy failed. Please run the Node.js proxy (see README.md) or paste your OpenRouter API key into `assets/js/main.js` (variable `OPENROUTER_API_KEY`).');
-          setLoading(false);
-          return;
-        }
-
-        try{
-          var resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + OPENROUTER_API_KEY,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          if(!resp.ok){
-            var errText = await resp.text();
-            appendMessage('bot','Error from API: ' + resp.status + ' — ' + errText);
-            setLoading(false);
-            return;
-          }
-
-          var data = await resp.json();
-          var content = extractContentFromOpenrouterResponse(data);
-          convo.push({ role: 'assistant', content: content });
-          setLoading(false);
-          appendMessage('bot', content);
-
-        }catch(err){
-          setLoading(false);
-          appendMessage('bot','Network or parsing error: ' + (err && err.message ? err.message : String(err)));
+      // Use the local customized chatbot (no API calls needed)
+      function sendToChatbot(userText){
+        // Call the chatbot processor (initialized in chatbot.js)
+        if(window.CoffeBuckChatbot && window.CoffeBuckChatbot.processInput){
+          var response = window.CoffeBuckChatbot.processInput(userText);
+          appendMessage('bot', response);
+        } else {
+          appendMessage('bot', 'Chatbot not loaded. Please refresh the page.');
         }
       }
 
@@ -200,7 +119,7 @@
         if(!text) return;
         appendMessage('user', text);
         inputEl.value = '';
-        sendToApi(text);
+        sendToChatbot(text);
       }
 
       sendBtn.addEventListener('click', sendHandler);
