@@ -32,10 +32,18 @@
     // Initialize cart UI
     updateCartCount();
 
-    // Attach add-to-cart handlers
+    // Attach add-to-cart handlers (require login)
     document.querySelectorAll('.add-to-cart').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.preventDefault();
+        var isLogged = false;
+        try{ isLogged = !!(window.AuthClient && window.AuthClient.getCurrent && window.AuthClient.getCurrent()); }catch(e){}
+        if(!isLogged){
+          // redirect to auth page and return to current page after
+          var ret = encodeURIComponent(window.location.pathname + window.location.search);
+          window.location.href = 'auth.html?mode=login&redirect=' + ret;
+          return;
+        }
         var id = btn.getAttribute('data-id') || btn.getAttribute('data-name');
         var name = btn.getAttribute('data-name') || 'Item';
         var price = parseFloat(btn.getAttribute('data-price')) || 0;

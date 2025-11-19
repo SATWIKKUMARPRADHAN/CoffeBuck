@@ -74,6 +74,20 @@
     userText = userText.toLowerCase().trim();
     var response = '';
 
+    // Get current user for personalization
+    var currentUser = null;
+    if(window.AuthClient && window.AuthClient.getCurrent){
+      currentUser = window.AuthClient.getCurrent();
+    }
+
+    // Get time of day for personalized greeting
+    function getTimeGreeting(){
+      var hour = new Date().getHours();
+      if(hour < 12) return 'Good morning';
+      if(hour < 17) return 'Good afternoon';
+      return 'Good evening';
+    }
+
     // Command patterns (waiter + receptionist + assistant)
     
     // 1. Menu item order: "add [item] to cart", "order [item]", "get me [item]"
@@ -91,6 +105,9 @@
           window.CoffeBuck.addToCart({ id: match.key, name: item.name, price: item.price, qty: 1 });
         }
         response += '✓ Added **' + item.name + '** (₹' + item.price + ') to your cart.';
+        if(currentUser){
+          response += ' Great choice, ' + currentUser.username + '! ☕';
+        }
         return response;
       } else {
         return 'Hmm, I couldn\'t find "' + itemQuery + '" on our menu. 🤔 Try asking for items like Espresso, Cappuccino, Matcha Latte, or Cold Brew. What can I get you?';
@@ -174,12 +191,51 @@
 
     // 10. General greeting / help
     if(userText.match(/^(?:hi|hello|hey|greetings|what can you|help me)\b/i)){
-      return 'Hello! 👋 I\'m your **CoffeBuck Digital Assistant**. I can:\n\n✓ Help you **order** items from our menu\n✓ Tell you about **pricing** and our coffee brews\n✓ Answer questions about **CoffeBuck** and its story\n✓ Show you **locations** and hours\n✓ Guide you through the **checkout** process\n✓ Manage your **cart**\n\nWhat can I get for you today? ☕';
+      var greeting = getTimeGreeting();
+      var personalGreeting = greeting + '! 👋 ';
+      if(currentUser){
+        personalGreeting += 'Welcome back, **' + currentUser.username + '**! ';
+      }
+      personalGreeting += 'I\'m your **CoffeBuck Digital Assistant**. I can:\n\n✓ Help you **order** items from our menu\n✓ Tell you about **pricing** and our coffee brews\n✓ Answer questions about **CoffeBuck** and its story\n✓ Show you **locations** and hours';
+      if(currentUser){
+        personalGreeting += '\n✓ View your **order history** from your profile\n✓ Help you **reorder** your favorites';
+      }
+      personalGreeting += '\n✓ Guide you through the **checkout** process\n✓ Manage your **cart**\n\nWhat can I get for you today? ☕';
+      return personalGreeting;
     }
 
     // 11. Social media / Contact: "instagram", "facebook", "contact"
     if(userText.match(/(?:instagram|facebook|twitter|social|contact|reach|follow)\b/i)){
       return '📱 **Connect With Us:**\n\n🔷 [Instagram](https://www.instagram.com/coffebuck_19/) - @coffebuck_19\n🐦 [Twitter/X](https://x.com/klose1905)\n\nOr visit our [Contact](contact.html) page to send us a message! We\'d love to hear from you. ❤️';
+
+        // 12. Personalized recommendations / Favorites
+        if(userText.match(/(?:recommend|suggest|favorite|what should i|what do you suggest|suggestion)\b/i)){
+          if(currentUser && currentUser.orders && currentUser.orders.length > 0){
+            var allItems = [];
+            currentUser.orders.forEach(function(order){
+              if(order.items){
+                order.items.forEach(function(item){
+                  allItems.push(item.name);
+                });
+              }
+            });
+            if(allItems.length > 0){
+              var mostOrdered = allItems[0];
+              return '🎯 **Personalized for You:**\n\nBased on your order history, you\'ve loved **' + mostOrdered + '** in the past! Why not try it again? Or we have some **new seasonal flavors** you might enjoy. What sounds good?';
+            }
+          }
+          return '☕ **Our Popular Picks:**\n\n✨ **Caramel Macchiato** - Smooth and sweet comfort\n✨ **Classic Cold Brew** - Perfect all year round\n✨ **Matcha Latte** - Earthy and revitalizing\n\nOr ask me about any item to learn more!';
+        }
+
+        // 13. Profile / Account info
+        if(userText.match(/(?:profile|account|my account|my orders|order history)\b/i)){
+          if(currentUser){
+            var orderCount = (currentUser.orders && currentUser.orders.length) ? currentUser.orders.length : 0;
+            return '👤 **Your Profile:**\n\n📧 Email: ' + currentUser.email + '\n📋 Total Orders: ' + orderCount + '\n\nVisit your [Profile](profile.html) to see your complete order history and account details!';
+          } else {
+            return 'Please [login](auth.html) to view your profile and order history!';
+          }
+        }
     }
 
     // Default: polite fallback
